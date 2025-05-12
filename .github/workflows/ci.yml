@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [ubuntu-22.04]
 
     env:
       # Skip PyPy builds to keep the matrix lean
