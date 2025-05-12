@@ -1,0 +1,31 @@
+[build-system]
+requires = ["scikit-build-core>=0.11", "pybind11>=2.13"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "libCBDetect"
+version = "1.0.0"
+description = "Python bindings for a C++ Checkerboard detector"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name="Michaël Hillen", email="michael.hillen@uantwerpen.be" },
+]
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: C++",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy<1.29.0,>=1.22.4",
+    "opencv-python-headless"
+]
+dynamic = ["platform"]
+
+[tool.scikit-build]
+minimum-version = "0.11"
+
+[project.urls]
+"Homepage" = "https://github.com/InViLabUAntwerp/libCBDetect"

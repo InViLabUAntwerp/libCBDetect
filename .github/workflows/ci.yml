@@ -1,0 +1,61 @@
+name: Build wheels (Ubuntu, macOS & Windows)
+
+on:
+  [push, pull_request]
+
+jobs:
+  build_wheels:
+    name: cibuildwheel ➜ ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, windows-latest, macos-14]
+
+    env:
+      # Skip PyPy builds to keep the matrix lean
+      CIBW_SKIP: "pp*"
+
+      # ---- Linux (Ubuntu 22.04) wheels ----
+      # Build‑time prerequisites with APT (no manylinux container)
+      CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
+      CIBW_BEFORE_BUILD_LINUX: |
+        dnf install -y opencv opencv-devel
+
+      # Point CMake at the packaged OpenCV files
+      CIBW_ENVIRONMENT_LINUX: |
+        OpenCV_DIR=/usr/lib/$(uname -m)-linux-gnu/cmake/opencv4
+
+      # ---- Windows wheels ----
+      CIBW_ARCHS_WINDOWS: "AMD64"
+      CIBW_BEFORE_BUILD_WINDOWS: |
+        powershell -ExecutionPolicy Bypass -Command "
+          $ver='4.11.0';$exe="$env:TEMP\opencv.exe";Invoke-WebRequest -Uri "https://github.com/opencv/opencv/releases/download/$ver/opencv-$ver-windows.exe" -OutFile $exe; Start-Process -FilePath $exe -ArgumentList "-y","-oC:\" -NoNewWindow -Wait; Remove-Item $exe; $base='C:\opencv'; $bin="$base\build\x64\vc16\bin"; $cfg="$base\build\x64\vc16\lib"; [Environment]::SetEnvironmentVariable('Path',[Environment]::GetEnvironmentVariable('Path','Machine')+';'+$bin,'Machine'); [Environment]::SetEnvironmentVariable('OpenCV_DIR',$cfg,'Machine'); $env:Path+=';'+$bin
+        "
+
+      # ---- macOS wheels ----
+      MACOSX_DEPLOYMENT_TARGET: '14.0'
+      CIBW_ENVIRONMENT: 'MACOSX_DEPLOYMENT_TARGET=14.0'
+      CIBW_BEFORE_BUILD_MACOS: "brew install opencv"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tooling
+        run: python -m pip install --upgrade pip cibuildwheel==2.23.3 build==1.2.2.post1 wheel==0.45.1
+
+      - name: Build wheels for all platforms
+        uses: pypa/cibuildwheel@v2.23.3
+        with:
+          package-dir: .
+          output-dir: wheelhouse
+
+      - name: Upload wheel artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}
+          path: wheelhouse/*.whl
