@@ -30,12 +30,10 @@ jobs:
       # ---- Windows wheels ----
       CIBW_ARCHS_WINDOWS: AMD64
       CIBW_BEFORE_BUILD_WINDOWS: |
-        choco install opencv --version 4.11.0 --package-parameters '/Environment' -y
+        choco install opencv --version 4.11.0 `
+              --package-parameters '/Environment:C:\tools\opencv\build' -y
         Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
         Update-SessionEnvironment
-      CIBW_ENVIRONMENT_WINDOWS: |
-        OpenCV_DIR=$env:OpenCV_DIR
-        PATH="$PATH;$env:OpenCV_DIR\bin"
 
       # ---- macOS wheels ----
       MACOSX_DEPLOYMENT_TARGET: '14.0'
