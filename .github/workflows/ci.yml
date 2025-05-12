@@ -28,6 +28,8 @@ jobs:
 
       # ---- Windows wheels ----
       CIBW_ARCHS_WINDOWS: "AMD64"
+      CIBW_ENVIRONMENT_WINDOWS: |
+        OpenCV_DIR=C:\opencv\build\x64\vc16\lib
       CIBW_BEFORE_BUILD_WINDOWS: |
         powershell -ExecutionPolicy Bypass -Command "
           $ver='4.11.0';$exe="$env:TEMP\opencv.exe";Invoke-WebRequest -Uri "https://github.com/opencv/opencv/releases/download/$ver/opencv-$ver-windows.exe" -OutFile $exe; Start-Process -FilePath $exe -ArgumentList "-y","-oC:\" -NoNewWindow -Wait; Remove-Item $exe; $base='C:\opencv'; $bin="$base\build\x64\vc16\bin"; $cfg="$base\build\x64\vc16\lib"; [Environment]::SetEnvironmentVariable('Path',[Environment]::GetEnvironmentVariable('Path','Machine')+';'+$bin,'Machine'); [Environment]::SetEnvironmentVariable('OpenCV_DIR',$cfg,'Machine'); $env:Path+=';'+$bin
