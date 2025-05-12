@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-22.04, macos-14]
+        os: [ubuntu-22.04, windows-latest, macos-14]
 
     env:
       # Skip PyPy builds to keep the matrix lean
@@ -20,7 +20,8 @@ jobs:
       # Build‑time prerequisites with APT (no manylinux container)
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
       CIBW_BEFORE_BUILD_LINUX: |
-        dnf install -y opencv opencv-devel
+        yum install -y epel-release && \
+        yum install -y opencv opencv-devel
 
       # Point CMake at the packaged OpenCV files
       CIBW_ENVIRONMENT_LINUX: |
@@ -29,10 +30,15 @@ jobs:
       # ---- Windows wheels ----
       CIBW_ARCHS_WINDOWS: "AMD64"
       CIBW_ENVIRONMENT_WINDOWS: |
-        OpenCV_DIR=C:\opencv\build\x64\vc16\lib
+        OpenCV_DIR="C:\opencv\build\x64\vc17\lib"
+        PATH="$PATH;C:\opencv\build\x64\vc17\bin"
+
       CIBW_BEFORE_BUILD_WINDOWS: |
-        powershell -ExecutionPolicy Bypass -Command "
-          $ver='4.11.0';$exe="$env:TEMP\opencv.exe";Invoke-WebRequest -Uri "https://github.com/opencv/opencv/releases/download/$ver/opencv-$ver-windows.exe" -OutFile $exe; Start-Process -FilePath $exe -ArgumentList "-y","-oC:\" -NoNewWindow -Wait; Remove-Item $exe; $base='C:\opencv'; $bin="$base\build\x64\vc16\bin"; $cfg="$base\build\x64\vc16\lib"; [Environment]::SetEnvironmentVariable('Path',[Environment]::GetEnvironmentVariable('Path','Machine')+';'+$bin,'Machine'); [Environment]::SetEnvironmentVariable('OpenCV_DIR',$cfg,'Machine'); $env:Path+=';'+$bin
+        powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "
+          $ver='4.11.0';
+          $exe=\"$env:TEMP\opencv.exe\";
+          Invoke-WebRequest -Uri \"https://github.com/opencv/opencv/releases/download/$ver/opencv-$ver-windows.exe\" -OutFile $exe;
+          Start-Process $exe -ArgumentList '-y','-oC:\' -Wait;
         "
 
       # ---- macOS wheels ----
