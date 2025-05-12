@@ -29,10 +29,6 @@ jobs:
 
       # ---- Windows wheels ----
       CIBW_ARCHS_WINDOWS: "AMD64"
-      CIBW_ENVIRONMENT_WINDOWS: |
-        OpenCV_DIR="C:\opencv\build\x64\vc17\lib"
-        PATH="$PATH;C:\opencv\build\x64\vc17\bin"
-
       CIBW_BEFORE_BUILD_WINDOWS: |
         choco install opencv --version 4.11.0 --package-parameters '/Environment' -y refreshenv
 
