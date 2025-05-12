@@ -30,9 +30,7 @@ jobs:
       # ---- Windows wheels ----
       CIBW_ARCHS_WINDOWS: AMD64
       CIBW_BEFORE_BUILD_WINDOWS: |
-        choco install opencv --version 4.11.0 --package-parameters '/Environment:C:\tools\opencv\build' -y
-        Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-        Update-SessionEnvironment
+        $ver='4.11.0';$exe="$env:TEMP\opencv.exe";Invoke-WebRequest -Uri "https://github.com/opencv/opencv/releases/download/$ver/opencv-$ver-windows.exe" -OutFile $exe; Start-Process -FilePath $exe -ArgumentList "-y","-oC:\" -NoNewWindow -Wait; Remove-Item $exe; $base='C:\opencv'; $bin="$base\build\x64\vc16\bin"; $cfg="$base\build\x64\vc16\lib"; [Environment]::SetEnvironmentVariable('Path',[Environment]::GetEnvironmentVariable('Path','Machine')+';'+$bin,'Machine'); [Environment]::SetEnvironmentVariable('OpenCV_DIR',$cfg,'Machine'); $env:Path+=';'+$bin
       CIBW_ENVIRONMENT_WINDOWS: >
         OpenCV_DIR=C:\tools\opencv\build
         PATH="$PATH;C:\tools\opencv\build\x64\vc17\bin"
