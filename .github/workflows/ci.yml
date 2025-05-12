@@ -33,7 +33,7 @@ jobs:
         choco install opencv --version 4.11.0 --package-parameters '/Environment:C:\tools\opencv\build' -y
         Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
         Update-SessionEnvironment
-      CIBW_ENVIRONMENT_WINDOWS: |
+      CIBW_ENVIRONMENT_WINDOWS: >
         OpenCV_DIR=C:\tools\opencv\build
         PATH="$PATH;C:\tools\opencv\build\x64\vc17\bin"
 
