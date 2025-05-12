@@ -34,12 +34,7 @@ jobs:
         PATH="$PATH;C:\opencv\build\x64\vc17\bin"
 
       CIBW_BEFORE_BUILD_WINDOWS: |
-        powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "
-          $ver='4.11.0';
-          $exe=\"$env:TEMP\opencv.exe\";
-          Invoke-WebRequest -Uri \"https://github.com/opencv/opencv/releases/download/$ver/opencv-$ver-windows.exe\" -OutFile $exe;
-          Start-Process $exe -ArgumentList '-y','-oC:\' -Wait;
-        "
+        choco install opencv --version 4.11.0 --package-parameters '/Environment' -y refreshenv
 
       # ---- macOS wheels ----
       MACOSX_DEPLOYMENT_TARGET: '14.0'
