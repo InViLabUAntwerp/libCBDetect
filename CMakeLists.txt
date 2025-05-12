@@ -10,6 +10,23 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 include(GNUInstallDirs)
 
+if (WIN32)
+    if (DEFINED ENV{OpenCV_DIR})
+        set(OpenCV_DIR "$ENV{OpenCV_DIR}" CACHE PATH "OpenCV install" FORCE)
+        list(APPEND CMAKE_PREFIX_PATH "${OpenCV_DIR}")
+    endif()
+
+    if (DEFINED ENV{PYBIND11_ROOT})
+        set(pybind11_ROOT "$ENV{PYBIND11_ROOT}" CACHE PATH "pybind11 root" FORCE)
+        list(APPEND CMAKE_PREFIX_PATH "${pybind11_ROOT}")
+    endif()
+
+    if (DEFINED ENV{Python3_ROOT_DIR})
+        set(Python3_ROOT_DIR "$ENV{Python3_ROOT_DIR}" CACHE PATH "Python root" FORCE)
+        list(APPEND CMAKE_PREFIX_PATH "${Python3_ROOT_DIR}")
+    endif()
+endif()
+
 set(PYBIND11_FINDPYTHON ON)
 find_package(pybind11 CONFIG REQUIRED)
 find_package(OpenCV REQUIRED)
