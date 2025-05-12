@@ -30,7 +30,17 @@ jobs:
       # ---- Windows wheels ----
       CIBW_ARCHS_WINDOWS: AMD64
       CIBW_BEFORE_BUILD_WINDOWS: |
-        $ver='4.11.0';$exe="$env:TEMP\opencv.exe";Invoke-WebRequest -Uri "https://github.com/opencv/opencv/releases/download/$ver/opencv-$ver-windows.exe" -OutFile $exe; Start-Process -FilePath $exe -ArgumentList "-y","-oC:\" -NoNewWindow -Wait; Remove-Item $exe; $base='C:\opencv'; $bin="$base\build\x64\vc16\bin"; $cfg="$base\build\x64\vc16\lib"; [Environment]::SetEnvironmentVariable('Path',[Environment]::GetEnvironmentVariable('Path','Machine')+';'+$bin,'Machine'); [Environment]::SetEnvironmentVariable('OpenCV_DIR',$cfg,'Machine'); $env:Path+=';'+$bin
+        choco install opencv --version 4.11.0 -y
+        $opencvDir = "C:\tools\opencv\build"
+        Write-Output "Setting environment variables for OpenCV..."
+        [Environment]::SetEnvironmentVariable('OpenCV_DIR', $opencvDir, 'Machine')
+        [Environment]::SetEnvironmentVariable('Path', [Environment]::GetEnvironmentVariable('Path', 'Machine') + ";$opencvDir\x64\vc17\bin", 'Machine')
+        # Refresh environment for the current process
+        $env:OpenCV_DIR = $opencvDir
+        $env:Path += ";$opencvDir\x64\vc17\bin"
+      CIBW_ENVIRONMENT_WINDOWS: >
+        OpenCV_DIR=C:\tools\opencv\build
+        PATH="$env:PATH;C:\tools\opencv\build\x64\vc17\bin"
 
       # ---- macOS wheels ----
       MACOSX_DEPLOYMENT_TARGET: '14.0'
