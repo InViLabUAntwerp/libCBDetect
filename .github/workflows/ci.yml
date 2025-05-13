@@ -16,35 +16,17 @@ jobs:
       # Skip PyPy builds to keep the matrix lean
       CIBW_SKIP: "pp*"
 
-      # ---- Linux (Ubuntu 22.04) wheels ----
-      # Build-time prerequisites with APT (no manylinux container)
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
       CIBW_BEFORE_BUILD_LINUX: |
         yum install -y epel-release && \
         yum install -y opencv opencv-devel
 
-      # Point CMake at the packaged OpenCV files
       CIBW_ENVIRONMENT_LINUX: |
         OpenCV_DIR=/usr/lib/$(uname -m)-linux-gnu/cmake/opencv4
 
-      # ---- Windows wheels ----
       CIBW_ARCHS_WINDOWS: AMD64
-      CIBW_BEFORE_BUILD_WINDOWS: >
-        powershell -ExecutionPolicy Bypass -Command "
-        $ErrorActionPreference = 'Stop';              # fail fast
-        $ver  = '4.11.0';
-        $exe  = Join-Path $env:TEMP 'opencv.exe';     # C:\Users\...\Temp\opencv.exe
-        Invoke-WebRequest -Uri ('https://github.com/opencv/opencv/releases/download/' + $ver + '/opencv-' + $ver + '-windows.exe') -OutFile $exe;
-        & $exe /S /D=C:\opencv | Out-Null;            # silent self-extract
-        Remove-Item $exe;
-        $base = 'C:\opencv';
-        $bin  = Join-Path $base 'build\x64\vc16\bin';
-        $cfg  = Join-Path $base 'build\x64\vc16\lib';
-        $env:OpenCV_DIR = $cfg;                       # visible to this build only
-        $env:Path      += ';' + $bin                  # add DLL folder
-        "
+      # OpenCV installation is now handled in the "Set up OpenCV on Windows" step
 
-      # ---- macOS wheels ----
       MACOSX_DEPLOYMENT_TARGET: '14.0'
       CIBW_ENVIRONMENT: 'MACOSX_DEPLOYMENT_TARGET=14.0'
       CIBW_BEFORE_BUILD_MACOS: "brew install opencv"
@@ -59,11 +41,63 @@ jobs:
       - name: Install build tooling
         run: python -m pip install --upgrade pip cibuildwheel==2.23.3 build==1.2.2.post1 wheel==0.45.1
 
+      - name: Set up OpenCV on Windows
+        if: runner.os == 'Windows'
+        run: |
+          $ver='4.11.0'
+          $exe="$env:TEMP\opencv.exe"
+          Invoke-WebRequest -Uri "https://github.com/opencv/opencv/releases/download/$ver/opencv-$ver-windows.exe" -OutFile $exe
+          Start-Process -FilePath $exe -ArgumentList "-y","-oC:\" -NoNewWindow -Wait
+          Remove-Item $exe
+          $base='C:\opencv'
+          $bin="$base\build\x64\vc16\bin"
+          $cmake_dir="$base\build\x64\vc16\lib"
+
+          # Check if OpenCVConfig.cmake exists in the expected location
+          if (Test-Path "$cmake_dir\OpenCVConfig.cmake") {
+            Write-Host "Found OpenCVConfig.cmake in $cmake_dir"
+          } else {
+            Write-Host "OpenCVConfig.cmake not found in $cmake_dir, searching for it..."
+            $opencv_config = Get-ChildItem -Path $base -Recurse -Filter "OpenCVConfig.cmake" | Select-Object -First 1
+            if ($opencv_config) {
+              $cmake_dir = $opencv_config.Directory.FullName
+              Write-Host "Found OpenCVConfig.cmake in $cmake_dir"
+            } else {
+              Write-Host "OpenCVConfig.cmake not found in the OpenCV installation directory"
+              exit 1
+            }
+          }
+
+          # Add bin directory to PATH
+          $env:Path += ";$bin"
+          # Set OpenCV_DIR for CMake to find OpenCV
+          $env:OpenCV_DIR = $cmake_dir
+          # Set environment variables for subsequent steps
+          echo "OPENCV_BIN=$bin" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "OPENCV_DIR=$cmake_dir" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+          # List files in the OpenCV_DIR to verify contents
+          Write-Host "Files in OpenCV_DIR:"
+          Get-ChildItem -Path $env:OpenCV_DIR | Format-Table Name, Length
+
       - name: Build wheels for all platforms
         uses: pypa/cibuildwheel@v2.23.3
         with:
           package-dir: .
           output-dir: wheelhouse
+        env:
+          # Set OpenCV_DIR for cibuildwheel on Windows
+          CIBW_ENVIRONMENT_WINDOWS: OpenCV_DIR=${{ env.OPENCV_DIR }}
+
+      - name: Repair Windows wheels with delvewheel
+        if: runner.os == 'Windows'
+        run: |
+          python -m pip install delvewheel
+          Get-ChildItem wheelhouse\*.whl | ForEach-Object {
+            delvewheel repair $_.FullName -w wheelhouse\repaired\
+          }
+          Move-Item wheelhouse\repaired\*.whl wheelhouse\
+          Remove-Item -Recurse -Force wheelhouse\repaired\
 
       - name: Upload wheel artifacts
         uses: actions/upload-artifact@v4

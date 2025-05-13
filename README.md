@@ -89,7 +89,7 @@ python -m pip install --upgrade pip wheel build pybind11 cibuildwheel
 ### Windows (PowerShell)
 
 ```powershell
-py -3 -m venv .venv
+py -3.10 -m venv .venv
 .venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip wheel build pybind11 cibuildwheel
 ```
@@ -113,10 +113,24 @@ dist/
   └─ libCBDetect-0.1.0.tar.gz
 ```
 
+**Windows only**: Repair the wheel with delvewheel to include all required DLLs:
+
+```powershell
+pip install delvewheel
+$wheel = Get-ChildItem -Path .\dist\*.whl | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+delvewheel repair $wheel.FullName -w .\dist\repaired\
+```
+
 Install:
 
 ```bash
 pip install dist/checkerboard-*.whl --force-reinstall
+```
+
+**Windows**: Use the repaired wheel:
+
+```powershell
+pip install dist\repaired\*.whl --force-reinstall
 ```
 
 ### 3-b Editable installation for rapid iteration
