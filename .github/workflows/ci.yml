@@ -86,7 +86,7 @@ jobs:
           Set-Content -Path $cmake_init_path -Value $cmake_init
           Write-Host "Created CMakeInit.txt with content:"
           Get-Content $cmake_init_path
-          
+
           # List files in the OpenCV_DIR to verify contents
           Write-Host "Files in OpenCV_DIR:"
           Get-ChildItem -Path $env:OpenCV_DIR | Format-Table Name, Length
@@ -102,7 +102,7 @@ jobs:
           CIBW_ENVIRONMENT_WINDOWS: >-
             OpenCV_DIR="${{ env.OPENCV_DIR }}"
             CMAKE_PREFIX_PATH="${{ env.OPENCV_DIR }}"
-            PATH="${{ env.OPENCV_BIN }};%PATH%"
+            PATH="C:\\opencv\\build\\x64\\vc16\\bin;%PATH%"
           CIBW_CMAKE_OPTIONS_WINDOWS: >-
             -C "$(Get-Location)\CMakeInit.txt"
 
