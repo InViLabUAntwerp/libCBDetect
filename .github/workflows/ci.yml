@@ -50,35 +50,81 @@ jobs:
           Start-Process -FilePath $exe -ArgumentList "-y","-oC:\" -NoNewWindow -Wait
           Remove-Item $exe
           $base='C:\opencv'
-          $bin="$base\build\x64\vc16\bin"
-          $cmake_dir="$base\build\x64\vc16\lib"
 
-          # Check if OpenCVConfig.cmake exists in the expected location
-          if (Test-Path "$cmake_dir\OpenCVConfig.cmake") {
+          # Search for OpenCVConfig.cmake in the entire OpenCV directory
+          Write-Host "Searching for OpenCVConfig.cmake in $base..."
+          $opencv_config = Get-ChildItem -Path $base -Recurse -Filter "OpenCVConfig.cmake" | Select-Object -First 1
+
+          if ($opencv_config) {
+            $cmake_dir = $opencv_config.Directory.FullName
             Write-Host "Found OpenCVConfig.cmake in $cmake_dir"
-          } else {
-            Write-Host "OpenCVConfig.cmake not found in $cmake_dir, searching for it..."
-            $opencv_config = Get-ChildItem -Path $base -Recurse -Filter "OpenCVConfig.cmake" | Select-Object -First 1
-            if ($opencv_config) {
-              $cmake_dir = $opencv_config.Directory.FullName
-              Write-Host "Found OpenCVConfig.cmake in $cmake_dir"
+
+            # Find the bin directory (usually at the same level as lib)
+            $parent_dir = Split-Path -Parent $cmake_dir
+            $bin_dir = if (Test-Path "$parent_dir\bin") { "$parent_dir\bin" } else { "$base\build\x64\vc16\bin" }
+
+            Write-Host "Using bin directory: $bin_dir"
+
+            # Add bin directory to PATH
+            $env:Path += ";$bin_dir"
+
+            # Set OpenCV_DIR for CMake to find OpenCV
+            $env:OpenCV_DIR = $cmake_dir
+
+            # Set environment variables for subsequent steps
+            echo "OpenCV_DIR=$cmake_dir" | Out-File -FilePath $env:GITHUB_ENV -Append
+            echo "OPENCV_BIN=$bin_dir" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+            # List files in the OpenCV_DIR to verify contents
+            Write-Host "Files in OpenCV_DIR:"
+            Get-ChildItem -Path $cmake_dir | Format-Table Name, Length
+
+            # Check for specific files needed by CMake
+            if (Test-Path "$cmake_dir\OpenCVConfig.cmake") {
+              Write-Host "Verified OpenCVConfig.cmake exists"
             } else {
-              Write-Host "OpenCVConfig.cmake not found in the OpenCV installation directory"
+              Write-Host "ERROR: OpenCVConfig.cmake not found in $cmake_dir"
               exit 1
             }
+          } else {
+            Write-Host "ERROR: OpenCVConfig.cmake not found in the OpenCV installation directory"
+            exit 1
           }
 
-          # Add bin directory to PATH
-          $env:Path += ";$bin"
-          # Set OpenCV_DIR for CMake to find OpenCV
-          $env:OpenCV_DIR = $cmake_dir
-          # Set environment variables for subsequent steps
-          echo "OPENCV_BIN=$bin" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "OPENCV_DIR=$cmake_dir" | Out-File -FilePath $env:GITHUB_ENV -Append
+      - name: Debug environment variables
+        if: runner.os == 'Windows'
+        run: |
+          Write-Host "OpenCV_DIR: $env:OpenCV_DIR"
+          Write-Host "OPENCV_BIN: $env:OPENCV_BIN"
+          Write-Host "Checking if OpenCVConfig.cmake exists:"
+          if (Test-Path "$env:OpenCV_DIR\OpenCVConfig.cmake") {
+            Write-Host "OpenCVConfig.cmake exists at $env:OpenCV_DIR\OpenCVConfig.cmake"
+          } else {
+            Write-Host "OpenCVConfig.cmake does NOT exist at $env:OpenCV_DIR\OpenCVConfig.cmake"
+          }
 
-          # List files in the OpenCV_DIR to verify contents
-          Write-Host "Files in OpenCV_DIR:"
-          Get-ChildItem -Path $env:OpenCV_DIR | Format-Table Name, Length
+          # List all environment variables
+          Write-Host "All environment variables:"
+          Get-ChildItem env:
+
+          # Create a CMakeInit.txt file to explicitly set OpenCV_DIR
+          $cmake_init = @"
+set(OpenCV_DIR "$env:OpenCV_DIR" CACHE PATH "OpenCV directory" FORCE)
+list(APPEND CMAKE_PREFIX_PATH "$env:OpenCV_DIR")
+message(STATUS "CMakeInit.txt: Setting OpenCV_DIR to $env:OpenCV_DIR")
+"@
+          $cmake_init_path = "CMakeInit.txt"
+          Set-Content -Path $cmake_init_path -Value $cmake_init
+          Write-Host "Created CMakeInit.txt at $cmake_init_path with content:"
+          Get-Content $cmake_init_path
+
+          # Verify the file exists
+          if (Test-Path $cmake_init_path) {
+            Write-Host "Verified CMakeInit.txt exists at $(Resolve-Path $cmake_init_path)"
+          } else {
+            Write-Host "ERROR: CMakeInit.txt was not created"
+            exit 1
+          }
 
       - name: Build wheels for all platforms
         uses: pypa/cibuildwheel@v2.23.3
@@ -87,7 +133,12 @@ jobs:
           output-dir: wheelhouse
         env:
           # Set OpenCV_DIR for cibuildwheel on Windows
-          CIBW_ENVIRONMENT_WINDOWS: OpenCV_DIR=${{ env.OPENCV_DIR }}
+          CIBW_ENVIRONMENT_WINDOWS: >-
+            OpenCV_DIR="${{ env.OpenCV_DIR }}"
+            CMAKE_PREFIX_PATH="${{ env.OpenCV_DIR }}"
+            PATH="${{ env.OPENCV_BIN }};%PATH%"
+          CIBW_CMAKE_OPTIONS_WINDOWS: >-
+            -C "CMakeInit.txt"
 
       - name: Repair Windows wheels with delvewheel
         if: runner.os == 'Windows'
