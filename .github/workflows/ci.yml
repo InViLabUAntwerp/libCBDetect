@@ -1,7 +1,7 @@
 name: Build wheels (Ubuntu, macOS & Windows)
 
 on:
-  [push, pull_request]
+  [ push, pull_request ]
 
 jobs:
   build_wheels:
@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [ windows-latest ]
 
     env:
       # Skip PyPy builds to keep the matrix lean
@@ -105,8 +105,15 @@ jobs:
 
       - name: Repair Windows wheels with delvewheel
         if: runner.os == 'Windows'
+        env:
+          # Set OpenCV_DIR for cibuildwheel on Windows
+          CIBW_ENVIRONMENT_WINDOWS: >
+            OpenCV_DIR="C:\\opencv\\build\\x64\\vc16\\lib"
+            CMAKE_PREFIX_PATH="C:\\opencv\\build\\x64\\vc16\\lib"
+            PATH="C:\\opencv\\build\\x64\\vc16\\bin;$PATH"
         run: |
           python -m pip install delvewheel
+          mkdir -Force wheelhouse\repaired
           Get-ChildItem wheelhouse\*.whl | ForEach-Object {
             delvewheel repair $_.FullName -w wheelhouse\repaired\
           }
