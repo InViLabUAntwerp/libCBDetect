@@ -25,7 +25,6 @@ jobs:
         OpenCV_DIR=/usr/lib/$(uname -m)-linux-gnu/cmake/opencv4
 
       CIBW_ARCHS_WINDOWS: AMD64
-      # OpenCV installation is now handled in the "Set up OpenCV on Windows" step
 
       MACOSX_DEPLOYMENT_TARGET: '14.0'
       CIBW_ENVIRONMENT: 'MACOSX_DEPLOYMENT_TARGET=14.0'
@@ -86,7 +85,7 @@ jobs:
           Set-Content -Path $cmake_init_path -Value $cmake_init
           Write-Host "Created CMakeInit.txt with content:"
           Get-Content $cmake_init_path
-
+          
           # List files in the OpenCV_DIR to verify contents
           Write-Host "Files in OpenCV_DIR:"
           Get-ChildItem -Path $env:OpenCV_DIR | Format-Table Name, Length
@@ -99,12 +98,10 @@ jobs:
           output-dir: wheelhouse
         env:
           # Set OpenCV_DIR for cibuildwheel on Windows
-          CIBW_ENVIRONMENT_WINDOWS: >-
-            OpenCV_DIR="${{ env.OPENCV_DIR }}"
-            CMAKE_PREFIX_PATH="${{ env.OPENCV_DIR }}"
-            PATH="C:\\opencv\\build\\x64\\vc16\\bin;%PATH%"
-          CIBW_CMAKE_OPTIONS_WINDOWS: >-
-            -C "$(Get-Location)\CMakeInit.txt"
+          CIBW_ENVIRONMENT_WINDOWS: >
+            OpenCV_DIR="C:\\opencv\\build\\x64\\vc16\\lib"
+            CMAKE_PREFIX_PATH="C:\\opencv\\build\\x64\\vc16\\lib"
+            PATH="C:\\opencv\\build\\x64\\vc16\\bin;$PATH"
 
       - name: Repair Windows wheels with delvewheel
         if: runner.os == 'Windows'
