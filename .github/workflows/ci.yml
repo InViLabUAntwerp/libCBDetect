@@ -115,7 +115,7 @@ jobs:
           python -m pip install delvewheel
           mkdir -Force wheelhouse\repaired
           Get-ChildItem wheelhouse\*.whl | ForEach-Object {
-            delvewheel repair $_.FullName -w wheelhouse\repaired\
+            delvewheel repair $_.FullName -w wheelhouse\repaired\ --add-path C:\opencv\build\x64\vc16\bin
           }
           Move-Item wheelhouse\repaired\*.whl wheelhouse\
           Remove-Item -Recurse -Force wheelhouse\repaired\
