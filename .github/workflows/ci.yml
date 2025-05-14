@@ -117,7 +117,7 @@ jobs:
           Get-ChildItem wheelhouse\*.whl | ForEach-Object {
             delvewheel repair $_.FullName -w wheelhouse\repaired\ --add-path C:\opencv\build\x64\vc16\bin
           }
-          Move-Item wheelhouse\repaired\*.whl wheelhouse\
+          Move-Item wheelhouse\repaired\*.whl wheelhouse\ -Force
           Remove-Item -Recurse -Force wheelhouse\repaired\
 
       - name: Upload wheel artifacts
