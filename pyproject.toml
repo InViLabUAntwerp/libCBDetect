@@ -24,7 +24,7 @@ dependencies = [
 ]
 dynamic = ["platform"]
 
-[tool.cibuildwheel.linux]
+[tool.cibuildwheel]
 manylinux-x86_64-image = "manylinux_2_28"
 
 [tool.scikit-build]
