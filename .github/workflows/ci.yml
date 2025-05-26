@@ -22,10 +22,6 @@ jobs:
         yum install opencv opencv-devel -y
         echo "/usr/lib64" > /etc/ld.so.conf.d/opencv.conf && ldconfig
 
-
-      CIBW_ENVIRONMENT_LINUX: |
-        OpenCV_DIR=/usr/lib/$(uname -m)-linux-gnu/cmake/opencv4
-
       CIBW_ARCHS_WINDOWS: AMD64
 
       MACOSX_DEPLOYMENT_TARGET: '14.0'
