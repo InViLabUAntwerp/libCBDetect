@@ -10,8 +10,8 @@ jobs:
 
     strategy:
       matrix:
-        #        os: [ubuntu-latest, macos-14, windows-latest]
-        os: [ macos-14, windows-latest ]
+        os: [ubuntu-latest, macos-14, windows-latest]
+#        os: [ macos-14, windows-latest ]
 
     env:
       # Skip PyPy builds to keep the matrix lean
@@ -19,7 +19,7 @@ jobs:
 
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
       CIBW_BEFORE_BUILD_LINUX: |
-        yum install -y opencv opencv-devel
+        yum install libopencv-dev -y
         echo "/usr/lib64" > /etc/ld.so.conf.d/opencv.conf && ldconfig
 
 

@@ -40,7 +40,7 @@ autmatically extracts corners to sub-pixel accuracy and combines them to (rectan
 2. **Linux (Ubuntu/Debian)**
    ```bash
    sudo apt update
-   sudo apt install -y opencv opencv-devel
+   sudo apt install libopencv-dev -y
    ```  
    This installs both runtime and development headers/libraries for OpenCV
    4.x.  ([How to Install opencv in C++ on Linux?—GeeksforGeeks](https://www.geeksforgeeks.org/how-to-install-opencv-in-c-on-linux/?utm_source=chatgpt.com))
