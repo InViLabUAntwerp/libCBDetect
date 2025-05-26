@@ -18,6 +18,7 @@ jobs:
       CIBW_SKIP: "pp*"
 
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
+      CIBW_MANYLINUX_I686_IMAGE: manylinux_2_28
       CIBW_BEFORE_BUILD_LINUX: |
         yum install opencv opencv-devel -y
         echo "/usr/lib64" > /etc/ld.so.conf.d/opencv.conf && ldconfig
