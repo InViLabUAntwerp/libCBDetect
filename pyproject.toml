@@ -24,6 +24,9 @@ dependencies = [
 ]
 dynamic = ["platform"]
 
+[tool.cibuildwheel.linux]
+manylinux-x86_64-image = "manylinux_2_28"
+
 [tool.scikit-build]
 minimum-version = "0.11"
 
