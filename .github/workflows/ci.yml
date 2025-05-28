@@ -17,6 +17,8 @@ jobs:
       # Skip PyPy builds to keep the matrix lean
       CIBW_SKIP: "pp*"
 
+      CIBW_BUILD: "cp*-manylinux_x86_64"
+
       CIBW_ARCHS_LINUX: "x86_64"
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
       CIBW_BEFORE_BUILD_LINUX: |
