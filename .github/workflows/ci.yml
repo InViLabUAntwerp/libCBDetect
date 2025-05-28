@@ -21,10 +21,35 @@ jobs:
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
 
       CIBW_BEFORE_BUILD_LINUX: |
-          yum install opencv-4.11 opencv-devel-4.11 -y &&
-          echo "/usr/lib64" > /etc/ld.so.conf.d/opencv.conf && ldconfig
+        yum install -y cmake gcc-c++ wget unzip make \
+          gtk3-devel libpng-devel libjpeg-turbo-devel \
+          jasper-devel openexr-devel libtiff-devel \
+          libwebp-devel tbb-devel eigen3-devel
+        
+        cd /tmp
+        wget -O opencv.zip https://github.com/opencv/opencv/archive/4.x.zip
+        wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.x.zip
+        unzip opencv.zip
+        unzip opencv_contrib.zip
+        mkdir -p opencv-4.x/build
+        cd opencv-4.x/build
+        cmake -D CMAKE_BUILD_TYPE=Release \
+              -D CMAKE_INSTALL_PREFIX=/usr/local \
+              -D OPENCV_EXTRA_MODULES_PATH=/tmp/opencv_contrib-4.x/modules \
+              -D BUILD_EXAMPLES=OFF \
+              -D BUILD_TESTS=OFF \
+              -D BUILD_PERF_TESTS=OFF \
+              -D BUILD_DOCS=OFF \
+              -D BUILD_opencv_python2=OFF \
+              -D BUILD_opencv_python3=ON \
+              ..
+        make -j"$(nproc)"
+        make install
+        ldconfig
+
       CIBW_ENVIRONMENT_LINUX: >
-          OpenCV_DIR=/usr/lib/$(uname -m)-linux-gnu/cmake/opencv4
+        OpenCV_DIR=/usr/local/lib64/cmake/opencv4
+      
 
       CIBW_ARCHS_WINDOWS: AMD64
 
