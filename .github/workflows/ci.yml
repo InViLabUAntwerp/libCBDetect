@@ -21,7 +21,7 @@ jobs:
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
 
       CIBW_BEFORE_BUILD_LINUX: |
-          yum install opencv opencv-devel -y &&
+          yum install opencv-4.11 opencv-devel-4.11 -y &&
           echo "/usr/lib64" > /etc/ld.so.conf.d/opencv.conf && ldconfig
       CIBW_ENVIRONMENT_LINUX: >
           OpenCV_DIR=/usr/lib/$(uname -m)-linux-gnu/cmake/opencv4
