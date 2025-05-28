@@ -19,13 +19,21 @@ jobs:
 
       CIBW_ARCHS_LINUX: "x86_64"
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
-      CIBW_BEFORE_BUILD_LINUX: >
+      CIBW_BEFORE_BUILD_LINUX: |
         if [[ "$CIBW_BUILD" == *manylinux* ]]; then
-          yum install opencv opencv-devel -y &&
+          echo "Installing OpenCV for manylinux..."
+          yum install opencv opencv-devel -y
           echo "/usr/lib64" > /etc/ld.so.conf.d/opencv.conf && ldconfig
+          export OpenCV_DIR="/usr/lib/$(uname -m)-linux-gnu/cmake/opencv4"
         elif [[ "$CIBW_BUILD" == *musllinux* ]]; then
-          apk add opencv opencv-dev
+          echo "Installing OpenCV for musllinux..."
+          apk add --no-cache opencv opencv-dev
+          export OpenCV_DIR="/usr/lib/cmake/opencv4" # Verify this path on Alpine
+        else
+          echo "Unknown Linux build type: $CIBW_BUILD"
+          exit 1
         fi
+        echo "OpenCV_DIR set to: $OpenCV_DIR" # For debugging
 
       CIBW_ENVIRONMENT_LINUX: >
         if [[ "$CIBW_BUILD" == *manylinux* ]]; then
