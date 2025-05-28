@@ -19,17 +19,19 @@ jobs:
 
       CIBW_ARCHS_LINUX: "x86_64"
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
+
       CIBW_BEFORE_BUILD_LINUX_MANYLINUX: >
           yum install opencv opencv-devel -y &&
           echo "/usr/lib64" > /etc/ld.so.conf.d/opencv.conf && ldconfig
-      CIBW_BEFORE_BUILD_LINUX_MUSLLINUX: >
-          apk add opencv opencv-dev
-
       CIBW_ENVIRONMENT_LINUX_MANYLINUX: >
           OpenCV_DIR=/usr/lib/$(uname -m)-linux-gnu/cmake/opencv4
+          CMAKE_PREFIX_PATH=/usr/lib/$(uname -m)-linux-gnu:$CMAKE_PREFIX_PATH
+
+      CIBW_BEFORE_BUILD_LINUX_MUSLLINUX: >
+          apk add opencv opencv-dev
       CIBW_ENVIRONMENT_LINUX_MUSLLINUX: >
           OpenCV_DIR=/usr/lib/cmake/opencv4
-
+          CMAKE_PREFIX_PATH=/usr:$CMAKE_PREFIX_PATH
 
       CIBW_ARCHS_WINDOWS: AMD64
 
