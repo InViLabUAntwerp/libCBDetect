@@ -162,9 +162,6 @@ jobs:
         make -j"$(nproc)"
         make install
         ldconfig
-        
-        mkdir -p src/libCBDetect/.libs
-        cp /usr/local/lib64/libopencv_world.so.411 src/libCBDetect/.libs/
 
       CIBW_ENVIRONMENT_PASS_LINUX: |
               OpenCV_DIR=usr/local/lib64/cmake/opencv4
