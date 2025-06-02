@@ -166,9 +166,12 @@ before-all = """
     make -j"$(nproc)"
     make install
     ldconfig
+    echo "--- Finding libopencv_world.so.411 ---"
+    find / -name "libopencv_world.so.411*" 2>/dev/null || true
+    echo "--- Search complete ---"
 """
 
-environment = { OpenCV_DIR = "/usr/local/lib64/cmake/opencv4", LD_LIBRARY_PATH = "/usr/local/lib64", CPLUS_INCLUDE_PATH = "/usr/include/lib" }
+environment = { OpenCV_DIR = "/usr/local/lib64/cmake/opencv4", LD_LIBRARY_PATH = "/usr/local/lib64/libopencv_world.so.411", CPLUS_INCLUDE_PATH = "/usr/include/lib" }
 
 
 [tool.scikit-build]
