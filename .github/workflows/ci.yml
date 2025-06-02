@@ -21,7 +21,6 @@ jobs:
       CIBW_ARCHS_LINUX: "x86_64"
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
 
-      LD_LIBRARY_PATH: ./../usr/local/lib64
 
       CIBW_BEFORE_ALL_LINUX: |
         yum install -y cmake gcc-c++ wget unzip make \
@@ -166,13 +165,8 @@ jobs:
         make install
         ldconfig
 
-      CIBW_ENVIRONMENT_PASS_LINUX: |
-              OpenCV_DIR=/usr/local/lib64/cmake/opencv4
-              LD_LIBRARY_PATH=/usr/local/lib64
-
-      CIBW_ENVIRONMENT_LINUX: |
-              OpenCV_DIR=/usr/local/lib64/cmake/opencv4
-              LD_LIBRARY_PATH=/usr/local/lib64
+      CIBW_ENVIRONMENT_PASS_LINUX: "LD_LIBRARY_PATH=/usr/local/lib64:$LD_LIBRARY_PATH"
+      CIBW_ENVIRONMENT_LINUX: "LD_LIBRARY_PATH=/usr/local/lib64:$LD_LIBRARY_PATH"
 
       CIBW_ARCHS_WINDOWS: AMD64
 
