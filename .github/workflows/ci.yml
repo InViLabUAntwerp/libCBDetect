@@ -21,6 +21,8 @@ jobs:
       CIBW_ARCHS_LINUX: "x86_64"
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
 
+      LD_LIBRARY_PATH: /usr/local/lib64:/usr/local/lib:$LD_LIBRARY_PATH
+
       CIBW_BEFORE_ALL_LINUX: |
         yum install -y cmake gcc-c++ wget unzip make \
           gtk3-devel libpng-devel libjpeg-turbo-devel \
@@ -244,7 +246,6 @@ jobs:
           package-dir: .
           output-dir: wheelhouse
         env:
-          CIBW_REPAIR_SHOW: 1
           # Set OpenCV_DIR for cibuildwheel on Windows
           CIBW_ENVIRONMENT_WINDOWS: >
             OpenCV_DIR="C:\\opencv\\build\\x64\\vc16\\lib"
