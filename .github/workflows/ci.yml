@@ -21,7 +21,7 @@ jobs:
       CIBW_ARCHS_LINUX: "x86_64"
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
 
-      LD_LIBRARY_PATH: /usr/local/lib64:/usr/local/lib:$LD_LIBRARY_PATH
+      LD_LIBRARY_PATH: ./../usr/local/lib64
 
       CIBW_BEFORE_ALL_LINUX: |
         yum install -y cmake gcc-c++ wget unzip make \
