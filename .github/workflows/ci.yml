@@ -162,8 +162,18 @@ jobs:
         make -j"$(nproc)"
         make install
         ldconfig
+        
+        mkdir -p src/libCBDetect/.libs
+        cp /usr/local/lib64/libopencv_world.so.411 src/libCBDetect/.libs/
+        
+        # Patch the rpath of your extension module so it finds OpenCV relative to itself
+        patchelf --set-rpath '$ORIGIN/.libs' src/libCBDetect/libcbdetect*.so
+        
+        # (Optional) patch OpenCV's own rpath if it has internal deps
+        patchelf --set-rpath '$ORIGIN' src/libCBDetect/.libs/libopencv_world.so.411
 
-      CIBW_ENVIRONMENT_PASS_LINUX: |
+
+CIBW_ENVIRONMENT_PASS_LINUX: |
         OpenCV_DIR=usr/local/lib64/cmake/opencv4
         LD_LIBRARY_PATH=/usr/local/lib64/libopencv_world.so.411
         CPLUS_INCLUDE_PATH=/usr/include/lib
@@ -252,7 +262,7 @@ jobs:
             CMAKE_PREFIX_PATH="C:\\opencv\\build\\x64\\vc16\\lib"
             PATH="C:\\opencv\\build\\x64\\vc16\\bin;$PATH"
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
-            auditwheel repair -w /tmp/cibuildwheel/repaired_wheel /tmp/cibuildwheel/built_wheel/libcbdetect-1.0.0-cp310-cp310-linux_x86_64.whl --exclude libpython*.so --add-rpath /usr/local/lib64
+            auditwheel repair -w /tmp/cibuildwheel/repaired_wheel /tmp/cibuildwheel/built_wheel/*.whl
 
       - name: Repair Windows wheels with delvewheel
         if: runner.os == 'Windows'
