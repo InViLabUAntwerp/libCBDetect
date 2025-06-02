@@ -249,8 +249,8 @@ jobs:
             OpenCV_DIR="C:\\opencv\\build\\x64\\vc16\\lib"
             CMAKE_PREFIX_PATH="C:\\opencv\\build\\x64\\vc16\\lib"
             PATH="C:\\opencv\\build\\x64\\vc16\\bin;$PATH"
-          CIBW_REPAIR_WHEEL_COMMAND_LINUX: |
-            echo "skipping linux repair"
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
+            cp -v {wheel} {dest_dir}/
 
       - name: Repair Windows wheels with delvewheel
         if: runner.os == 'Windows'
