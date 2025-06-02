@@ -165,23 +165,14 @@ jobs:
         
         mkdir -p src/libCBDetect/.libs
         cp /usr/local/lib64/libopencv_world.so.411 src/libCBDetect/.libs/
-        
-        # Patch the rpath of your extension module so it finds OpenCV relative to itself
-        patchelf --set-rpath '$ORIGIN/.libs' src/libCBDetect/libcbdetect*.so
-        
-        # (Optional) patch OpenCV's own rpath if it has internal deps
-        patchelf --set-rpath '$ORIGIN' src/libCBDetect/.libs/libopencv_world.so.411
-
 
       CIBW_ENVIRONMENT_PASS_LINUX: |
               OpenCV_DIR=usr/local/lib64/cmake/opencv4
-              LD_LIBRARY_PATH=/usr/local/lib64/libopencv_world.so.411
-              CPLUS_INCLUDE_PATH=/usr/include/lib
+              LD_LIBRARY_PATH=/usr/local/lib64
 
       CIBW_ENVIRONMENT_LINUX: |
               OpenCV_DIR=usr/local/lib64/cmake/opencv4
-              LD_LIBRARY_PATH=/usr/local/lib64/libopencv_world.so.411
-              CPLUS_INCLUDE_PATH=/usr/include/lib
+              LD_LIBRARY_PATH=/usr/local/lib64
 
       CIBW_ARCHS_WINDOWS: AMD64
 
@@ -261,8 +252,54 @@ jobs:
             OpenCV_DIR="C:\\opencv\\build\\x64\\vc16\\lib"
             CMAKE_PREFIX_PATH="C:\\opencv\\build\\x64\\vc16\\lib"
             PATH="C:\\opencv\\build\\x64\\vc16\\bin;$PATH"
-          CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
-            auditwheel repair -w /tmp/cibuildwheel/repaired_wheel /tmp/cibuildwheel/built_wheel/*.whl
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: |
+            set -euo pipefail
+            echo "Starting custom repair process for Linux..."
+    
+            # 1. Get the path to the newly built wheel
+            WHEEL_PATH=$(find /tmp/cibuildwheel/built_wheel -name "*.whl" -print -quit)
+            if [ -z "$WHEEL_PATH" ]; then
+            echo "Error: No wheel found in /tmp/cibuildwheel/built_wheel."
+            exit 1
+            fi
+            echo "Found built wheel: $WHEEL_PATH"
+    
+            # 2. Create a temporary directory to unpack the wheel
+            WHEEL_TMP_DIR=$(mktemp -d)
+            echo "Unpacking wheel to temporary directory: $WHEEL_TMP_DIR"
+            wheel unpack "$WHEEL_PATH" --dest "$WHEEL_TMP_DIR"
+    
+            # Find libopencv_world.so.411 within the unpacked wheel
+            OPENCV_WORLD_SO=$(find "$WHEEL_TMP_DIR" -name 'libopencv_world.so.411' -print -quit)
+    
+            if [ -z "$OPENCV_WORLD_SO" ]; then
+            echo "Error: libopencv_world.so.411 not found in unpacked wheel. It should have been copied into src/libCBDetect/.libs/ by CIBW_BEFORE_ALL_LINUX."
+            exit 1
+            fi
+            echo "Found libopencv_world.so: $OPENCV_WORLD_SO"
+    
+            # Patch OpenCV's own rpath if it has internal deps, to make it look next to itself.
+            # This is important if opencv_world.so.411 might depend on other
+            # OpenCV shared libraries that are *also* going to be in the same .libs folder.
+            # If opencv_world.so.411 is truly self-contained regarding other OpenCV parts,
+            # this might be less critical but is good defensive practice.
+            echo "Patching rpath for $OPENCV_WORLD_SO to \$ORIGIN"
+            patchelf --set-rpath '$ORIGIN' "$OPENCV_WORLD_SO"
+    
+            # 3. Re-pack the modified wheel.
+            REPAIRED_WHEEL_DIR=/tmp/cibuildwheel/repaired_wheel
+            mkdir -p "$REPAIRED_WHEEL_DIR" # Ensure destination exists
+            echo "Re-packing wheel from $WHEEL_TMP_DIR to $REPAIRED_WHEEL_DIR"
+            wheel pack "$WHEEL_TMP_DIR" --dest-dir "$REPAIRED_WHEEL_DIR"
+    
+            # 4. Clean up the temporary unpacked directory
+            echo "Cleaning up temporary directory: $WHEEL_TMP_DIR"
+            rm -rf "$WHEEL_TMP_DIR"
+    
+            # 5. Run auditwheel repair on the *already patched* wheel.
+            # This step will ensure manylinux compatibility and bundle any remaining *system* libraries.
+            echo "Running auditwheel repair on the patched wheel(s)."
+            auditwheel repair -w "$REPAIRED_WHEEL_DIR" "$REPAIRED_WHEEL_DIR"/*.whl
 
       - name: Repair Windows wheels with delvewheel
         if: runner.os == 'Windows'
