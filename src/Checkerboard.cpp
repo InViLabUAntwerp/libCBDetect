@@ -4,6 +4,7 @@
 #include "find_subpixel_corners.h"
 #include "plot_boards.h"
 #include "plot_corners.h"
+#include <iostream>
 #include <opencv2/opencv.hpp>
 #include <vector>
 

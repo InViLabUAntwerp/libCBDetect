@@ -20,35 +20,153 @@ jobs:
       CIBW_ARCHS_LINUX: "x86_64"
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
 
-      CIBW_BEFORE_BUILD_LINUX: |
+      CIBW_BEFORE_ALL_LINUX: |
         yum install -y cmake gcc-c++ wget unzip make \
           gtk3-devel libpng-devel libjpeg-turbo-devel \
           jasper-devel openexr-devel libtiff-devel \
           libwebp-devel tbb-devel eigen3-devel
-        
+    
         cd /tmp
-        wget -O opencv.zip https://github.com/opencv/opencv/archive/4.x.zip
-        wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.x.zip
+        wget -O opencv.zip https://github.com/opencv/opencv/archive/4.11.0.zip
         unzip opencv.zip
-        unzip opencv_contrib.zip
-        mkdir -p opencv-4.x/build
-        cd opencv-4.x/build
+        mkdir -p opencv-4.11.0/build
+        cd opencv-4.11.0/build
         cmake -D CMAKE_BUILD_TYPE=Release \
               -D CMAKE_INSTALL_PREFIX=/usr/local \
-              -D OPENCV_EXTRA_MODULES_PATH=/tmp/opencv_contrib-4.x/modules \
+              -D CMAKE_INSTALL_RPATH="/usr/local/lib64" \
+              -D BUILD_SHARED_LIBS=ON \
+              -D BUILD_opencv_world=ON \
+              -D BUILD_opencv_apps=OFF \
+              -D BUILD_opencv_calib3d=OFF \
+              -D BUILD_opencv_core=ON \
+              -D BUILD_opencv_dnn=OFF \
+              -D BUILD_opencv_features2d=OFF \
+              -D BUILD_opencv_flann=OFF \
+              -D BUILD_opencv_gapi=OFF \
+              -D BUILD_opencv_highgui=ON \
+              -D BUILD_opencv_imgcodecs=ON \
+              -D BUILD_opencv_imgproc=ON \
+              -D BUILD_opencv_ml=OFF \
+              -D BUILD_opencv_objdetect=OFF \
+              -D BUILD_opencv_photo=OFF \
+              -D BUILD_opencv_stitching=OFF \
+              -D BUILD_opencv_ts=OFF \
+              -D BUILD_opencv_video=OFF \
+              -D BUILD_opencv_videoio=OFF \
+              -D BUILD_opencv_aruco=OFF \
+              -D BUILD_opencv_bgsegm=OFF \
+              -D BUILD_opencv_bioinspired=OFF \
+              -D BUILD_opencv_ccalib=OFF \
+              -D BUILD_opencv_datasets=OFF \
+              -D BUILD_opencv_dpm=OFF \
+              -D BUILD_opencv_face=OFF \
+              -D BUILD_opencv_fuzzy=OFF \
+              -D BUILD_opencv_hfs=OFF \
+              -D BUILD_opencv_line_descriptor=OFF \
+              -D BUILD_opencv_mcc=OFF \
+              -D BUILD_opencv_optflow=OFF \
+              -D BUILD_opencv_phase_unwrapping=OFF \
+              -D BUILD_opencv_plot=OFF \
+              -D BUILD_opencv_quality=OFF \
+              -D BUILD_opencv_rapid=OFF \
+              -D BUILD_opencv_reg=OFF \
+              -D BUILD_opencv_rgbd=OFF \
+              -D BUILD_opencv_saliency=OFF \
+              -D BUILD_opencv_shape=OFF \
+              -D BUILD_opencv_stereo=OFF \
+              -D BUILD_opencv_structured_light=OFF \
+              -D BUILD_opencv_superres=OFF \
+              -D BUILD_opencv_surface_matching=OFF \
+              -D BUILD_opencv_text=OFF \
+              -D BUILD_opencv_tracking=OFF \
+              -D BUILD_opencv_xfeatures2d=OFF \
+              -D BUILD_opencv_ximgproc=OFF \
+              -D BUILD_opencv_xobjdetect=OFF \
+              -D BUILD_opencv_xphoto=OFF \
               -D BUILD_EXAMPLES=OFF \
               -D BUILD_TESTS=OFF \
               -D BUILD_PERF_TESTS=OFF \
               -D BUILD_DOCS=OFF \
+              -D BUILD_STATIC_LIBS=OFF \
+              -D WITH_1394=OFF \
+              -D WITH_ADE=OFF \
+              -D WITH_ARAVIS=OFF \
+              -D WITH_CSTRIPES=OFF \
+              -D WITH_CUDA=OFF \
+              -D WITH_CUBLAS=OFF \
+              -D WITH_NVCUVID=OFF \
+              -D WITH_EIGEN=OFF \
+              -D WITH_FFMPEG=OFF \
+              -D WITH_GDAL=OFF \
+              -D WITH_GIGEAPI=OFF \
+              -D WITH_GPHOTO2=OFF \
+              -D WITH_GSTREAMER=OFF \
+              -D WITH_GTK=OFF \
+              -D WITH_GTK_2_X=OFF \
+              -D WITH_HALIDE=OFF \
+              -D WITH_INF_ENGINE=OFF \
+              -D WITH_IPP=OFF \
+              -D WITH_ITT=OFF \
+              -D WITH_JASPER=OFF \
+              -D WITH_JPEG=ON \
+              -D WITH_LAPACK=OFF \
+              -D WITH_LIBREALSENSE=OFF \
+              -D WITH_MFX=OFF \
+              -D WITH_NGRAPH=OFF \
+              -D WITH_OPENCL=OFF \
+              -D WITH_OPENCLAMDBLAS=OFF \
+              -D WITH_OPENCLAMDFFT=OFF \
+              -D WITH_OPENEXR=ON \
+              -D WITH_OPENGL=OFF \
+              -D WITH_OPENMP=OFF \
+              -D WITH_OPENNI=OFF \
+              -D WITH_OPENNI2=OFF \
+              -D WITH_OPENVX=OFF \
+              -D WITH_PNG=OFF \
+              -D WITH_PVAPI=OFF \
+              -D WITH_QT=OFF \
+              -D WITH_QUIRC=OFF \
+              -D WITH_TBB=OFF \
+              -D WITH_TIFF=ON \
+              -D WITH_V4L=OFF \
+              -D WITH_VA=OFF \
+              -D WITH_VFW=OFF \
+              -D WITH_WEBP=OFF \
+              -D WITH_WIN32UI=OFF \
+              -D WITH_XIMEA=OFF \
+              -D WITH_XINE=OFF \
+              -D ENABLE_CCACHE=OFF \
+              -D ENABLE_FAST_MATH=OFF \
+              -D ENABLE_PROFILING=OFF \
+              -D ENABLE_SOLUTION_FOLDERS=OFF \
+              -D ENABLE_PRECOMPILED_HEADERS=OFF \
+              -D OPENCV_ENABLE_MEMALIGN=OFF \
+              -D OPENCV_FORCE_NEON=OFF \
+              -D OPENCV_GENERATE_PKGCONFIG=OFF \
+              -D OPENCV_IPP_GAUSSIAN_BLUR=OFF \
+              -D OPENCV_IPP_MEAN=OFF \
+              -D OPENCV_IPP_MINMAX=OFF \
+              -D OPENCV_IPP_SUM=OFF \
+              -D OPENCV_SKIP_CPU_BASELINE_RESUME=OFF \
               -D BUILD_opencv_python2=OFF \
-              -D BUILD_opencv_python3=ON \
+              -D BUILD_opencv_python3=OFF \
+              -D INSTALL_PYTHON_EXAMPLES=OFF \
+              -D BUILD_JAVA=OFF \
+              -D INSTALL_C_EXAMPLES=OFF \
+              -D WITH_IMGCODEC_HDR=OFF \
+              -D WITH_IMGCODEC_PXM=OFF \
+              -D WITH_IMGCODEC_SUNRASTER=OFF \
+              -D WITH_IMGCODEC_WEBP=OFF \
+              -D OPENCV_ENABLE_NONFREE=OFF \
               ..
         make -j"$(nproc)"
         make install
         ldconfig
 
       CIBW_ENVIRONMENT_LINUX: >
-        OpenCV_DIR=/usr/local/lib64/cmake/opencv4
+        OpenCV_DIR = "/usr/local/lib64/cmake/opencv4"
+        LD_LIBRARY_PATH = "/usr/local/lib64"
+        CPLUS_INCLUDE_PATH = "/usr/include/lib"
       
 
       CIBW_ARCHS_WINDOWS: AMD64
