@@ -162,14 +162,16 @@ jobs:
         make -j"$(nproc)"
         make install
         ldconfig
-        echo "--- Finding libopencv_world.so.411 ---"
-        find / -name "libopencv_world.so.411*" 2>/dev/null || true
-        echo "--- Search complete ---"
+
+      CIBW_ENVIRONMENT_PASS_LINUX: |
+        OpenCV_DIR=usr/local/lib64/cmake/opencv4
+        LD_LIBRARY_PATH=../usr/local/lib64/libopencv_world.so.411
+        CPLUS_INCLUDE_PATH=/usr/include/lib
 
       CIBW_ENVIRONMENT_LINUX: |
-        OpenCV_DIR=/usr/local/lib64/cmake/opencv4
-        LD_LIBRARY_PATH=/usr/local/lib64/libopencv_world.so.411
-      
+        OpenCV_DIR=usr/local/lib64/cmake/opencv4
+        LD_LIBRARY_PATH=../usr/local/lib64/libopencv_world.so.411
+        CPLUS_INCLUDE_PATH=/usr/include/lib
 
       CIBW_ARCHS_WINDOWS: AMD64
 
