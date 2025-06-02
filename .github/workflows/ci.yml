@@ -238,13 +238,13 @@ jobs:
           Write-Host "Files in OpenCV_DIR:"
           Get-ChildItem -Path $env:OpenCV_DIR | Format-Table Name, Length
 
-
       - name: Build wheels for all platforms
         uses: pypa/cibuildwheel@v2.23.3
         with:
           package-dir: .
           output-dir: wheelhouse
         env:
+          CIBW_REPAIR_SHOW: 1
           # Set OpenCV_DIR for cibuildwheel on Windows
           CIBW_ENVIRONMENT_WINDOWS: >
             OpenCV_DIR="C:\\opencv\\build\\x64\\vc16\\lib"
