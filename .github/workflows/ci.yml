@@ -163,8 +163,10 @@ jobs:
         make install
         ldconfig
 
-      CIBW_ENVIRONMENT_LINUX: >
+      CIBW_ENVIRONMENT_LINUX: |
         OpenCV_DIR=/usr/local/lib64/cmake/opencv4
+        LD_LIBRARY_PATH=/usr/local/lib64
+        CPLUS_INCLUDE_PATH=/usr/include/lib
       
 
       CIBW_ARCHS_WINDOWS: AMD64
