@@ -252,7 +252,7 @@ jobs:
             CMAKE_PREFIX_PATH="C:\\opencv\\build\\x64\\vc16\\lib"
             PATH="C:\\opencv\\build\\x64\\vc16\\bin;$PATH"
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
-            auditwheel repair -w {dest_dir} {wheel_file} --exclude libpython*.so --add-rpath /usr/local/lib64
+            auditwheel repair -w /tmp/cibuildwheel/repaired_wheel /tmp/cibuildwheel/built_wheel/libcbdetect-1.0.0-cp310-cp310-linux_x86_64.whl --exclude libpython*.so --add-rpath /usr/local/lib64
 
       - name: Repair Windows wheels with delvewheel
         if: runner.os == 'Windows'
