@@ -151,6 +151,9 @@ If using CLion (on Windows), change the default toolchain in the CMake Profiles 
 
 ---
 
+### Original CPP code:
+
+https://github.com/ftdlyc/libcbdetect
 
 ### Reference Papers
 
@@ -167,3 +170,4 @@ Calibration. In 2017 IEEE International Conference on Computer Vision (ICCV) (pp
 Calibration. In British Machine Vision Conference (BMCV), 2018.  
 [6] Sels, S., Ribbens, B., Vanlanduit, S., & Penne, R. (2019). Camera Calibration Using Gray Code. In Sensors (Vol. 19,
 Issue 2, p. 246). MDPI AG. https://doi.org/10.3390/s19020246
+[7] Hillen, M., De Boi, I., De Kerf, T., Sels, S., Cardenas De La Hoz, E., Gladines, J., Steenackers, G., Penne, R., & Vanlanduit, S. (2023). Enhanced Checkerboard Detection Using Gaussian Processes. Mathematics, 11(22), 4568. https://doi.org/10.3390/math11224568
