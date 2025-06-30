@@ -4,12 +4,12 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "libCBDetect"
-version = "1.0.0"
+version = "1.0.1"
 description = "Python bindings for a C++ Checkerboard detector"
 readme = "README.md"
 license = { text = "MIT" }
 authors = [
-    { name="Michaël Hillen", email="michael.hillen@uantwerpen.be" },
+    { name="Michaël Hillen", email="rhys.evans@uantwerpen.be" },
 ]
 requires-python = ">=3.10"
 classifiers = [
