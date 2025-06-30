@@ -290,12 +290,22 @@ jobs:
       - name: Download all wheels
         uses: actions/download-artifact@v4
         with:
-          path: wheels
+          path: downloaded-artifacts
+
+      - name: Find and move distribution files to 'dist' directory
+        run: |
+            mkdir dist
+            # Find all .whl files within the downloaded artifacts and move them to 'dist'
+            find downloaded-artifacts -name "*.whl" -exec mv {} dist/ \;
+            # If you also have an sdist (source distribution), make sure to build and upload it
+            # in your build job and then move it here as well.
+            # Example for sdist if you had it as an artifact named 'sdist':
+            # find downloaded-artifacts -name "*.tar.gz" -exec mv {} dist/ \;
 
       - name: Create / Update GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: '**/*.whl'
+          files: 'dist/*.whl'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
