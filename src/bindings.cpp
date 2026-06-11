@@ -60,9 +60,18 @@ PYBIND11_MODULE(Checkerboard, m) {
              py::arg("image"), py::arg("height"), py::arg("width"))
         .def("load_image",            &Checkerboard::load_image,
              py::arg("filename"))
-        .def("find_corners",          &Checkerboard::find_corners)
-        .def("find_board_from_corners", &Checkerboard::find_board_from_corners)
-        .def("refine_corners",        &Checkerboard::refine_corners)
+        .def("find_corners", [](Checkerboard &self) {
+            py::gil_scoped_release release;
+            self.find_corners();
+        })
+        .def("find_board_from_corners", [](Checkerboard &self) {
+            py::gil_scoped_release release;
+            self.find_board_from_corners();
+        })
+        .def("refine_corners", [](Checkerboard &self) {
+            py::gil_scoped_release release;
+            self.refine_corners();
+        })
         .def("plot_corners",          &Checkerboard::plot_corners)
         .def("plot_boards",           &Checkerboard::plot_boards)
 

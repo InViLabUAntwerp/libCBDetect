@@ -124,7 +124,7 @@ jobs:
               -D WITH_OPENCLAMDFFT=OFF \
               -D WITH_OPENEXR=ON \
               -D WITH_OPENGL=OFF \
-              -D WITH_OPENMP=OFF \
+              -D WITH_OPENMP=ON \
               -D WITH_OPENNI=OFF \
               -D WITH_OPENNI2=OFF \
               -D WITH_OPENVX=OFF \
@@ -132,7 +132,7 @@ jobs:
               -D WITH_PVAPI=OFF \
               -D WITH_QT=OFF \
               -D WITH_QUIRC=OFF \
-              -D WITH_TBB=OFF \
+              -D WITH_TBB=ON \
               -D WITH_TIFF=ON \
               -D WITH_V4L=OFF \
               -D WITH_VA=OFF \

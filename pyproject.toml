@@ -1,10 +1,10 @@
 [build-system]
-requires = ["scikit-build-core>=0.11", "pybind11>=2.13","cibuildwheel>=2.23.3"]
+requires = ["scikit-build-core>=0.12.2", "pybind11>=2.13","cibuildwheel>=2.23.3"]
 build-backend = "scikit_build_core.build"
 
 [project]
 name = "libCBDetect"
-version = "1.0.1"
+version = "1.0.2"
 description = "Python bindings for a C++ Checkerboard detector"
 readme = "README.md"
 license = { text = "MIT" }
@@ -22,7 +22,6 @@ dependencies = [
     "numpy<1.29.0,>=1.22.4",
     "opencv-python-headless"
 ]
-dynamic = ["platform"]
 
 [tool.cibuildwheel.linux]
 before-all = """
