@@ -57,7 +57,7 @@ void find_corners_resized(const cv::Mat& img, Corner& corners, const Params& par
   } else {
     return;
   }
-  cv::resize(img, img_resized, cv::Size(img.cols * scale, img.rows * scale), 0, 0, cv::INTER_LINEAR);
+  cv::resize(img, img_resized, cv::Size(img.cols * scale, img.rows * scale), 0, 0, cv::INTER_LINEAR_EXACT);
 
   if(img_resized.channels() == 3) {
 #if CV_VERSION_MAJOR >= 4

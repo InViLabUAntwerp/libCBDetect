@@ -4,7 +4,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "libCBDetect"
-version = "1.0.2"
+version = "1.0.3"
 description = "Python bindings for a C++ Checkerboard detector"
 readme = "README.md"
 license = { text = "MIT" }
