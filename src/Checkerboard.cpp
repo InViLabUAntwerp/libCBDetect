@@ -60,20 +60,22 @@ public:
 
 	}
 	~Checkerboard()
-	{
-		// deallocate memory 
-		std::cout << "DESTRUCTOR 0705" << std::endl;
-		corners.v1.clear();
-		corners.v2.clear();
-		corners.v3.clear();
-		corners.score.clear();
-		std::cout << "DESTRUCTOR 0705 corner" << std::endl;
-
-		boards.clear();
-				std::cout << "DESTRUCTOR 0705 board" << std::endl;
-
-		
-	}
+    {
+    #ifdef CBDETECT_DEBUG_DESTRUCTOR
+        std::cout << "DESTRUCTOR 0705" << std::endl;
+    #endif
+        corners.v1.clear();
+        corners.v2.clear();
+        corners.v3.clear();
+        corners.score.clear();
+    #ifdef CBDETECT_DEBUG_DESTRUCTOR
+        std::cout << "DESTRUCTOR 0705 corner" << std::endl;
+    #endif
+        boards.clear();
+    #ifdef CBDETECT_DEBUG_DESTRUCTOR
+        std::cout << "DESTRUCTOR 0705 board" << std::endl;
+    #endif
+    }
 	void array_to_image(int sizex, double* arrx, int h, int w)
 	{
 		int height = h;

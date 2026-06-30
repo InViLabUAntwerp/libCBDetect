@@ -10,6 +10,10 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 include(GNUInstallDirs)
 
+# --- add this ---
+option(ENABLE_DESTRUCTOR_DEBUG "Print destructor debug messages" OFF)
+# ----------------
+
 if (WIN32)
     if (DEFINED ENV{OpenCV_DIR})
         set(OpenCV_DIR "$ENV{OpenCV_DIR}" CACHE PATH "OpenCV install" FORCE)
@@ -40,6 +44,9 @@ list(REMOVE_ITEM CBDETECT_CORE_SRC
 
 add_library(cbdetect_core STATIC ${CBDETECT_CORE_SRC})
 target_compile_definitions(cbdetect_core PRIVATE CBDETECT_EXPORTS)
+if (ENABLE_DESTRUCTOR_DEBUG)
+    target_compile_definitions(cbdetect_core PRIVATE CBDETECT_DEBUG_DESTRUCTOR)
+endif()
 target_include_directories(cbdetect_core PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(cbdetect_core PUBLIC ${OpenCV_LIBRARIES})
 target_compile_features(cbdetect_core PUBLIC cxx_std_17)
@@ -51,8 +58,10 @@ endif()
 pybind11_add_module(Checkerboard MODULE
         src/bindings.cpp
         $<TARGET_OBJECTS:cbdetect_core>)
-
 target_compile_definitions(Checkerboard PRIVATE CBDETECT_EXPORTS)
+if (ENABLE_DESTRUCTOR_DEBUG)
+    target_compile_definitions(Checkerboard PRIVATE CBDETECT_DEBUG_DESTRUCTOR)
+endif()
 target_include_directories(Checkerboard
         PUBLIC
         ${PROJECT_SOURCE_DIR}/include
